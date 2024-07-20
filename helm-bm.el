@@ -163,19 +163,18 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
           (delq nil (mapcar 'helm-bm-transform-to-candicate bms)))))
 
 (defvar helm-source-bm
-  `((name . "Visible bookmarks")
-    (init . helm-bm-init)
-    (multiline)
-    (volatile)
-    (candidates . helm-bm-list-cache)
-    (action . (("Switch to buffer" . helm-bm-action-switch-to-buffer)
-               ("Remove(s)" . helm-bm-action-remove-markd-bookmarks)
-               (,helm-bm-action-name-edit-annotation
-                . helm-bm-action-bookmark-edit-annotation)
-               ("Remove all bookmarks in current buffer" .
-                (lambda (_c) (bm-remove-all-current-buffer)))
-               ("Remove all bookmarks in all buffers" .
-                (lambda (_c) (bm-remove-all-all-buffers)))))))
+  (helm-build-sync-source "Visible bookmarks"
+    :init 'helm-bm-init
+    :multiline t
+    :candidates helm-bm-list-cache
+    :action `(("Switch to buffer" . helm-bm-action-switch-to-buffer)
+              ("Remove(s)" . helm-bm-action-remove-markd-bookmarks)
+              (,helm-bm-action-name-edit-annotation
+               . helm-bm-action-bookmark-edit-annotation)
+              ("Remove all bookmarks in current buffer"
+               . (lambda (_c) (bm-remove-all-current-buffer)))
+              ("Remove all bookmarks in all buffers"
+               . (lambda (_c) (bm-remove-all-all-buffers))))))
 
 ;;;###autoload
 (defun helm-bm ()
