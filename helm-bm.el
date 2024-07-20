@@ -37,7 +37,6 @@
 (require 'bm)
 (require 'cl-lib)
 (require 'helm)
-(require 's)
 (require 'compile) ;; compilation-info-face, compilation-line-face
 
 (defgroup helm-bm nil
@@ -134,7 +133,8 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
           (propertize bufname 'face compilation-info-face)
           (propertize lineno 'face compilation-line-face)
           content
-          (if (s-blank? annotation) ""
+          (if (and annotation (string= annotation ""))
+              ""
             (concat "\n  "
                     (propertize annotation 'face
                                 'helm-bm-annotation-face)))))
