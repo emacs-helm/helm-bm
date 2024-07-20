@@ -91,11 +91,7 @@
 
 (defun helm-bm-all-bookmarks ()
   "Collect all bookmarks."
-  (let (bms)
-    (mapc #'(lambda (buf)
-              (mapcar #'(lambda (bm) (push bm bms))
-                      (helm-bm-bookmarks-in-buffer buf)))
-          (buffer-list)) bms))
+  (helm-bm-bookmarks-in-buffer (current-buffer)))
 
 (defun helm-bm-bookmarks-in-buffer (buf)
   "Gets a list of bookmarks in BUF, which can be a string or a buffer."
@@ -131,7 +127,7 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
           (propertize bufname 'face compilation-info-face)
           (propertize lineno 'face compilation-line-face)
           content
-          (if (and annotation (string= annotation ""))
+          (if (or (null annotation) (string= annotation ""))
               ""
             (concat "\n  "
                     (propertize annotation 'face
@@ -156,14 +152,16 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
 (defun helm-bm-init ()
   "Initialize `helm-source-bm'."
   (let ((bms (cl-sort (helm-bm-all-bookmarks) 'helm-bm<)))
-    (setq helm-bm-list-cache
-          (delq nil (mapcar 'helm-bm-transform-to-candicate bms)))))
+    (set (make-local-variable 'helm-bm-list-cache)
+         (delq nil (mapcar 'helm-bm-transform-to-candicate bms)))))
 
 (defvar helm-source-bm
   (helm-build-sync-source "Visible bookmarks"
     :init 'helm-bm-init
     :multiline t
-    :candidates helm-bm-list-cache
+    :volatile t
+    :candidates (lambda () (with-helm-current-buffer
+                             helm-bm-list-cache))
     :action '(("Switch to buffer" . helm-bm-action-switch-to-buffer)
               ("Remove(s)" . helm-bm-action-remove-markd-bookmarks)
               ("Edit annotation"
@@ -178,6 +176,8 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
   "Show bookmarks of bm.el with `helm'."
   (interactive)
   (helm :sources '(helm-source-bm)
+        :quit-if-no-candidate (lambda ()
+                                (message "No BM candidates in this buffer"))
         :buffer "*helm bm*"))
 
 (provide 'helm-bm)
