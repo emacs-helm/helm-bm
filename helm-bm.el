@@ -1,4 +1,4 @@
-;;; helm-bm.el --- helm sources for bm.el
+;;; helm-bm.el --- helm sources for bm.el -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2013-2016 Yasuyuki Oka <yasuyk@gmail.com>
 
