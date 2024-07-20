@@ -49,14 +49,6 @@
 
 (defconst helm-bm-action-name-edit-annotation "Edit annotation")
 
-(defmacro helm-bm-with-candidate (candidate &rest body)
-  "Execute the forms with CANDIDATE in BODY."
-  (declare (indent 1))
-  `(when (string-match "^\\(.+?\\):\\([0-9]+\\):\\(.*\\)$" candidate)
-     (let ((bufname (match-string 1 candidate))
-           (lineno (string-to-number (match-string 2 candidate))))
-       ,@body)))
-
 (defun helm-bm-bookmark-at-line (bufname lineno)
   "Return bookmark in BUFNAME at LINENO."
   (with-current-buffer bufname
@@ -68,28 +60,34 @@
 
 (defun helm-bm-action-bookmark-edit-annotation (candidate)
   "Edit bookmark annotation of CANDIDATE."
-  (helm-bm-with-candidate candidates
-    (let* ((bm (helm-bm-bookmark-at-line bufname lineno))
+  (when (string-match "^\\(.+?\\):\\([0-9]+\\):\\(.*\\)$" candidate)
+    (let* ((bufname (match-string 1 candidate))
+           (lineno (string-to-number (match-string 2 candidate)))
+           (bm (helm-bm-bookmark-at-line bufname lineno))
            (annotation (read-string
-                       (format "%s: " helm-bm-action-name-edit-annotation)
-                       (overlay-get bm 'annotation))))
+                        (format "%s: " helm-bm-action-name-edit-annotation)
+                        (overlay-get bm 'annotation))))
       (bm-bookmark-annotate bm annotation))))
 
 (defun helm-bm-action-switch-to-buffer (candidate)
   "Switch to buffer of CANDIDATE."
-  (helm-bm-with-candidate candidates
-    (switch-to-buffer bufname)
-    (goto-char (point-min))
-    (forward-line (1- lineno))))
+  (when (string-match "^\\(.+?\\):\\([0-9]+\\):\\(.*\\)$" candidate)
+    (let ((bufname (match-string 1 candidate))
+          (lineno (string-to-number (match-string 2 candidate))))
+      (switch-to-buffer bufname)
+      (goto-char (point-min))
+      (forward-line (1- lineno)))))
 
-(defun helm-bm-action-remove-markd-bookmarks (candidate)
+(defun helm-bm-action-remove-markd-bookmarks (_candidate)
   "Remove bookmarks of not CANDIDATE but `helm-marked-candidates'."
   (mapc 'helm-bm-action-remove-bookmark (helm-marked-candidates)))
 
 (defun helm-bm-action-remove-bookmark (candidate)
   "Remove bookmarks of CANDIDATE."
-  (helm-bm-with-candidate candidates
-    (bm-bookmark-remove (helm-bm-bookmark-at-line bufname lineno))))
+  (when (string-match "^\\(.+?\\):\\([0-9]+\\):\\(.*\\)$" candidate)
+    (let ((bufname (match-string 1 candidate))
+          (lineno (string-to-number (match-string 2 candidate))))
+      (bm-bookmark-remove (helm-bm-bookmark-at-line bufname lineno)))))
 
 (defun helm-bm-all-bookmarks ()
   "Collect all bookmarks."
@@ -157,9 +155,8 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
 
 (defun helm-bm-init ()
   "Initialize `helm-source-bm'."
-  (setq helm-bm-list-cache
-        (let ((bms (cl-sort (helm-bm-all-bookmarks) 'helm-bm<))
-              (bufname (buffer-name (current-buffer))))
+  (let ((bms (cl-sort (helm-bm-all-bookmarks) 'helm-bm<)))
+    (setq helm-bm-list-cache
           (delq nil (mapcar 'helm-bm-transform-to-candicate bms)))))
 
 (defvar helm-source-bm
@@ -167,9 +164,9 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
     :init 'helm-bm-init
     :multiline t
     :candidates helm-bm-list-cache
-    :action `(("Switch to buffer" . helm-bm-action-switch-to-buffer)
+    :action '(("Switch to buffer" . helm-bm-action-switch-to-buffer)
               ("Remove(s)" . helm-bm-action-remove-markd-bookmarks)
-              (,helm-bm-action-name-edit-annotation
+              ("Edit annotation"
                . helm-bm-action-bookmark-edit-annotation)
               ("Remove all bookmarks in current buffer"
                . (lambda (_c) (bm-remove-all-current-buffer)))
