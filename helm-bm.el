@@ -71,27 +71,12 @@
 
 (defun helm-bm-action-switch-to-buffer (candidate)
   "Switch to buffer of CANDIDATE."
-  (when (string-match "^\\(.+?\\):\\([0-9]+\\):\\(.*\\)$" candidate)
-    (let ((bufname (match-string 1 candidate))
-          (lineno (string-to-number (match-string 2 candidate))))
-      (switch-to-buffer bufname)
-      (goto-char (point-min))
-      (forward-line (1- lineno)))))
+  (let ((pos (overlay-get candidate 'position)))
+    (when pos (goto-char pos))))
 
-(defun helm-bm-action-remove-markd-bookmarks (_candidate)
-  "Remove bookmarks of not CANDIDATE but `helm-marked-candidates'."
-  (mapc 'helm-bm-action-remove-bookmark (helm-marked-candidates)))
-
-(defun helm-bm-action-remove-bookmark (candidate)
-  "Remove bookmarks of CANDIDATE."
-  (when (string-match "^\\(.+?\\):\\([0-9]+\\):\\(.*\\)$" candidate)
-    (let ((bufname (match-string 1 candidate))
-          (lineno (string-to-number (match-string 2 candidate))))
-      (bm-bookmark-remove (helm-bm-bookmark-at-line bufname lineno)))))
-
-(defun helm-bm-all-bookmarks ()
-  "Collect all bookmarks."
-  (helm-bm-bookmarks-in-buffer (current-buffer)))
+(defun helm-bm-action-remove-marked-bookmarks (_candidate)
+  "Remove marked bookmarks."
+  (mapc 'bm-bookmark-remove (helm-marked-candidates)))
 
 (defun helm-bm-bookmarks-in-buffer (buf)
   "Gets a list of bookmarks in BUF, which can be a string or a buffer."
@@ -144,23 +129,16 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
            bufname (int-to-string lineno)
            (buffer-substring-no-properties start (1- end)) annotation))))))
 
-(defvar helm-bm-list-cache nil)
-
-(defun helm-bm-init ()
-  "Initialize `helm-source-bm'."
-  (let ((bms (cl-sort (helm-bm-all-bookmarks) 'helm-bm<)))
-    (set (make-local-variable 'helm-bm-list-cache)
-         (delq nil (mapcar 'helm-bm-transform-to-candicate bms)))))
-
 (defvar helm-source-bm
   (helm-build-sync-source "Visible bookmarks"
-    :init 'helm-bm-init
     :multiline t
-    :volatile t
-    :candidates (lambda () (with-helm-current-buffer
-                             helm-bm-list-cache))
-    :action '(("Switch to buffer" . helm-bm-action-switch-to-buffer)
-              ("Remove(s)" . helm-bm-action-remove-markd-bookmarks)
+    :candidates (lambda () (helm-bm-bookmarks-in-buffer helm-current-buffer))
+    :candidate-transformer
+    (lambda (candidates)
+      (cl-loop for ov in candidates
+               collect (cons (helm-bm-transform-to-candicate ov) ov)))
+    :action '(("Jump to BM" . helm-bm-action-switch-to-buffer)
+              ("Remove(s)" . helm-bm-action-remove-marked-bookmarks)
               ("Edit annotation"
                . helm-bm-action-bookmark-edit-annotation)
               ("Remove all bookmarks in current buffer"
