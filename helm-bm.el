@@ -98,13 +98,9 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
       (cl-loop for ov in candidates
                collect (cons (helm-bm-transform-to-candicate ov) ov)))
     :action '(("Jump to BM" . helm-bm-action-switch-to-buffer)
-              ("Remove(s)" . helm-bm-action-remove-marked-bookmarks)
+              ("Remove BM bookmark(s)" . helm-bm-action-remove-marked-bookmarks)
               ("Edit annotation"
-               . helm-bm-action-bookmark-edit-annotation)
-              ("Remove all bookmarks in current buffer"
-               . (lambda (_c) (bm-remove-all-current-buffer)))
-              ("Remove all bookmarks in all buffers"
-               . (lambda (_c) (bm-remove-all-all-buffers))))))
+               . helm-bm-action-bookmark-edit-annotation))))
 
 ;;;###autoload
 (defun helm-bm ()
