@@ -95,11 +95,8 @@
 
 (defun helm-bm-bookmarks-in-buffer (buf)
   "Gets a list of bookmarks in BUF, which can be a string or a buffer."
-  (let ((mklist (lambda (x) (if (listp x) x (list x)))))
-    (funcall mklist
-             (with-current-buffer buf
-               (apply 'append
-                      (mapcar mklist (remove nil (bm-lists))))))))
+  (with-current-buffer buf
+    (helm-flatten-list (bm-lists))))
 
 (defun helm-bm-buffer-name (bm)
   "Return the name of BUFFER with BM."
