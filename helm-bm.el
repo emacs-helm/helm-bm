@@ -25,49 +25,26 @@
 
 ;; Installation:
 
-;; Add the following to your Emacs init file:
+;; Add this file in your `load-path' and the following to your Emacs init file:
 ;;
-;; (require 'helm-bm) ;; Not necessary if using ELPA package
+;; (autoload 'helm-bm "helm-bm" nil t) ;; Not necessary if using ELPA package
 ;; (global-set-key (kbd "C-c b") 'helm-bm)
-
-;; That's all.
 
 ;;; Code:
 
 (require 'bm)
 (require 'cl-lib)
 (require 'helm)
-(require 'compile) ;; compilation-info-face, compilation-line-face
 
 (defgroup helm-bm nil
   "Bookmarks of bm.el related Applications and libraries for Helm."
   :prefix "helm-bm-" :group 'helm)
 
-(defface helm-bm-annotation-face nil
-  "Face used for annotation."
-  :group 'helm-bm)
-
-(defconst helm-bm-action-name-edit-annotation "Edit annotation")
-
-(defun helm-bm-bookmark-at-line (bufname lineno)
-  "Return bookmark in BUFNAME at LINENO."
-  (with-current-buffer bufname
-    (let ((p (save-restriction
-               (goto-char (point-min))
-               (forward-line (1- lineno))
-               (point))))
-      (bm-bookmark-at p))))
-
 (defun helm-bm-action-bookmark-edit-annotation (candidate)
   "Edit bookmark annotation of CANDIDATE."
-  (when (string-match "^\\(.+?\\):\\([0-9]+\\):\\(.*\\)$" candidate)
-    (let* ((bufname (match-string 1 candidate))
-           (lineno (string-to-number (match-string 2 candidate)))
-           (bm (helm-bm-bookmark-at-line bufname lineno))
-           (annotation (read-string
-                        (format "%s: " helm-bm-action-name-edit-annotation)
-                        (overlay-get bm 'annotation))))
-      (bm-bookmark-annotate bm annotation))))
+  (let ((annotation (read-string "Edit annotation: "
+                                 (overlay-get candidate 'annotation))))
+    (bm-bookmark-annotate candidate annotation)))
 
 (defun helm-bm-action-switch-to-buffer (candidate)
   "Switch to buffer of CANDIDATE."
@@ -81,24 +58,7 @@
 (defun helm-bm-bookmarks-in-buffer (buf)
   "Gets a list of bookmarks in BUF, which can be a string or a buffer."
   (with-current-buffer buf
-    (helm-flatten-list (bm-lists))))
-
-(defun helm-bm-buffer-name (bm)
-  "Return the name of BUFFER with BM."
-  (buffer-name (overlay-buffer bm)))
-
-(defun helm-bm< (bm1 bm2)
-  "Return t if BM1 is less than BM2 in lexicographic order.
-Case is significant.
-Symbols are also allowed; their print names are used instead."
-  (let ((current-buf (buffer-name (current-buffer)))
-        (bm1-name (helm-bm-buffer-name bm1))
-        (bm2-name (helm-bm-buffer-name bm2)))
-    (if (string-equal bm1-name bm2-name)
-        (< (overlay-start bm1) (overlay-start bm2))
-      (cond ((string-equal current-buf bm1-name) t)
-            ((string-equal current-buf bm1-name) nil)
-            (:else (string< bm1-name bm2-name))))))
+    (helm-fast-remove-dups (helm-flatten-list (bm-lists)) :test 'eql)))
 
 (defun helm-bm-candidate-transformer-display
     (bufname lineno content annotation)
@@ -106,14 +66,14 @@ Symbols are also allowed; their print names are used instead."
 
 BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
   (format "%s:%s:%s%s"
-          (propertize bufname 'face compilation-info-face)
-          (propertize lineno 'face compilation-line-face)
+          (propertize bufname 'face 'font-lock-type-face)
+          (propertize lineno 'face 'font-lock-keyword-face)
           content
           (if (or (null annotation) (string= annotation ""))
               ""
             (concat "\n  "
-                    (propertize annotation 'face
-                                'helm-bm-annotation-face)))))
+                    (propertize
+                     annotation 'face 'font-lock-keyword-face)))))
 
 (defun helm-bm-transform-to-candicate (bm)
   "Convert a BM to a CANDICATE."
@@ -157,8 +117,5 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
 
 (provide 'helm-bm)
 
-;; Local Variables:
-;; coding: utf-8
-;; End:
 
 ;;; helm-bm.el ends here
