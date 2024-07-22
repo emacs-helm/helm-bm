@@ -112,12 +112,34 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
            bufname (int-to-string lineno)
            (buffer-substring-no-properties start (1- end)) annotation))))))
 
+(defun helm-bm-goto-next-buffer ()
+  (interactive)
+  (let* ((sel (helm-get-selection))
+         (buf (overlay-buffer sel)))
+    (while (eql buf (overlay-buffer (helm-get-selection)))
+      (helm-next-line 1))))
+
+(defun helm-bm-goto-precedent-buffer ()
+  (interactive)
+  (let* ((sel (helm-get-selection))
+         (buf (overlay-buffer sel)))
+    (while (eql buf (overlay-buffer (helm-get-selection)))
+      (helm-previous-line 1))))
+
+(defvar helm-bm-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map helm-map)
+    (define-key map (kbd "M-<up>")   'helm-bm-goto-precedent-buffer)
+    (define-key map (kbd "M-<down>") 'helm-bm-goto-next-buffer)
+    map))
+
 (defvar helm-source-bm
   (helm-build-sync-source "Visible bookmarks"
     :multiline t
     :candidates (lambda () (if bm-cycle-all-buffers
                                (helm-bm-bookmarks-in-all-buffers)
                              (helm-bm-bookmarks-in-buffer helm-current-buffer)))
+    :keymap 'helm-bm-map
     :candidate-transformer
     (lambda (candidates)
       (cl-loop for ov in candidates
