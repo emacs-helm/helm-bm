@@ -48,12 +48,18 @@
 
 (defun helm-bm-action-switch-to-buffer (candidate)
   "Switch to buffer of CANDIDATE."
-  (let ((pos (overlay-get candidate 'position)))
+  (let ((pos (overlay-get candidate 'position))
+        (buf (overlay-buffer candidate)))
+    (when buf (switch-to-buffer buf))
     (when pos (goto-char pos))))
 
 (defun helm-bm-action-remove-marked-bookmarks (_candidate)
   "Remove marked bookmarks."
   (mapc 'bm-bookmark-remove (helm-marked-candidates)))
+
+(defun helm-bm-bookmarks-in-all-buffers ()
+  (cl-loop for buf in (buffer-list)
+           append (helm-bm-bookmarks-in-buffer buf)))
 
 (defun helm-bm-bookmarks-in-buffer (buf)
   "Gets a list of bookmarks in BUF, which can be a string or a buffer."
@@ -92,7 +98,9 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
 (defvar helm-source-bm
   (helm-build-sync-source "Visible bookmarks"
     :multiline t
-    :candidates (lambda () (helm-bm-bookmarks-in-buffer helm-current-buffer))
+    :candidates (lambda () (if bm-cycle-all-buffers
+                               (helm-bm-bookmarks-in-all-buffers)
+                             (helm-bm-bookmarks-in-buffer helm-current-buffer)))
     :candidate-transformer
     (lambda (candidates)
       (cl-loop for ov in candidates
@@ -108,7 +116,9 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
   (interactive)
   (helm :sources '(helm-source-bm)
         :quit-if-no-candidate (lambda ()
-                                (message "No BM candidates in this buffer"))
+                                (if bm-cycle-all-buffers
+                                    (message "No BM candidates found in buffers")
+                                  (message "No BM candidates in this buffer")))
         :buffer "*helm bm*"))
 
 (provide 'helm-bm)
