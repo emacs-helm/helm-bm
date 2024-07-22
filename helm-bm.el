@@ -40,6 +40,10 @@
   "Bookmarks of bm.el related Applications and libraries for Helm."
   :prefix "helm-bm-" :group 'helm)
 
+(defcustom helm-bm-sort-from-pos t
+  "Sort bookmarks according to current position when non nil."
+  :type 'boolean)
+
 (defun helm-bm-action-bookmark-edit-annotation (candidate)
   "Edit bookmark annotation of CANDIDATE."
   (let ((annotation (read-string "Edit annotation: "
@@ -64,7 +68,9 @@
 (defun helm-bm-bookmarks-in-buffer (buf)
   "Gets a list of bookmarks in BUF, which can be a string or a buffer."
   (with-current-buffer buf
-    (helm-fast-remove-dups (helm-flatten-list (bm-lists)) :test 'eql)))
+    (if helm-bm-sort-from-pos
+        (helm-fast-remove-dups (helm-flatten-list (bm-lists)) :test 'eql)
+      (mapcar #'bm-bookmarkp (overlays-in (point) (point-max))))))
 
 (defun helm-bm-candidate-transformer-display
     (bufname lineno content annotation)
