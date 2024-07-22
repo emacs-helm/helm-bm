@@ -43,6 +43,8 @@
 (require 'cl-lib)
 (require 'helm)
 
+(declare-function helm-goto-char "ext:helm-utils")
+
 (defgroup helm-bm nil
   "Bookmarks of bm.el related Applications and libraries for Helm."
   :prefix "helm-bm-" :group 'helm)
@@ -59,10 +61,11 @@
 
 (defun helm-bm-action-switch-to-buffer (candidate)
   "Switch to buffer of CANDIDATE."
+  (require 'helm-utils)
   (let ((pos (overlay-get candidate 'position))
         (buf (overlay-buffer candidate)))
     (when buf (switch-to-buffer buf))
-    (when pos (goto-char pos))))
+    (when pos (helm-goto-char pos))))
 
 (defun helm-bm-action-remove-marked-bookmarks (_candidate)
   "Remove marked bookmarks."
