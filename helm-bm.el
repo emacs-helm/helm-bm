@@ -64,8 +64,9 @@
   (require 'helm-utils)
   (let ((pos (overlay-get candidate 'position))
         (buf (overlay-buffer candidate)))
-    (when buf (switch-to-buffer buf))
-    (when pos (helm-goto-char pos))))
+    (when (and pos buf)
+      (switch-to-buffer buf)
+      (helm-goto-char pos))))
 
 (defun helm-bm-action-remove-marked-bookmarks (_candidate)
   "Remove marked bookmarks."
