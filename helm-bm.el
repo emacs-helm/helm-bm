@@ -44,6 +44,7 @@
 (require 'helm)
 
 (declare-function helm-goto-char "ext:helm-utils")
+(declare-function helm-highlight-current-line "ext:helm-utils")
 
 (defgroup helm-bm nil
   "Bookmarks of bm.el related Applications and libraries for Helm."
@@ -66,7 +67,8 @@
         (buf (overlay-buffer candidate)))
     (when (and pos buf)
       (switch-to-buffer buf)
-      (helm-goto-char pos))))
+      (helm-goto-char pos)
+      (helm-highlight-current-line))))
 
 (defun helm-bm-action-remove-marked-bookmarks (_candidate)
   "Remove marked bookmarks."
