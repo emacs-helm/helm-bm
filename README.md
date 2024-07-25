@@ -7,22 +7,31 @@
 - [helm]
 - [bm]
 - [cl-lib]
-- [s]
 
 ## Installation
 
-If you're an Emacs 24 user or you have a recent version of package.el
-you can install `helm-bm.el` from the [MELPA](http://melpa.milkbox.net/) repository.
+You can install `helm-bm.el` from the [MELPA](http://melpa.milkbox.net/) repository with
+#### <kbd>M-x</kbd> `package-install`.
+
+Or add this file in your `load-path` and the following to your Emacs init file:
+
+    (autoload 'helm-bm "helm-bm" nil t) ;; Not necessary if using ELPA package.
 
 ## Configuration
 
-Add the following to your emacs init file.
+Bind helm-bm to a key of your choice, e.g.
 
-    (require 'helm-bm) ;; Not necessary if using ELPA package
     (global-set-key (kbd "C-c b") 'helm-bm)
+
+Show bookmarks from all buffers or only from current buffer according
+to `bm-cycle-all-buffers` value.
 
 
 ## Basic usage
+
+#### Bookmark some places with <kbd>M-x</kbd> `bm-toggle`
+
+Then
 
 #### <kbd>M-x</kbd> `helm-bm`
 
@@ -32,9 +41,8 @@ Show bookmarks of [bm].el with `helm`.
 [helm]:https://github.com/emacs-helm/helm
 [bm]:https://github.com/joodland/bm
 [cl-lib]:http://elpa.gnu.org/packages/cl-lib.html
-[s]:https://github.com/magnars/s.el
-[travis-badge]: https://travis-ci.org/yasuyk/helm-bm.svg
-[travis-link]: https://travis-ci.org/yasuyk/helm-bm
+[travis-badge]: https://travis-ci.org/emacs-helm/helm-bm.svg
+[travis-link]: https://travis-ci.org/emacs-helm/helm-bm
 [melpa-link]: http://melpa.org/#/helm-bm
 [melpa-stable-link]: http://stable.melpa.org/#/helm-bm
 [melpa-badge]: http://melpa.org/packages/helm-bm-badge.svg
