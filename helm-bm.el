@@ -1,11 +1,16 @@
 ;;; helm-bm.el --- helm sources for bm.el -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2013-2016 Yasuyuki Oka <yasuyk@gmail.com>
+;; Copyright (C) 2024 Thierry Volpiatto <thievol@posteo.net
 
 ;; Author: Yasuyuki Oka <yasuyk@gmail.com>
-;; URL: https://github.com/yasuyk/helm-bm
+;;         Thierry Volpiatto <thievol@posteo.net
+;;
+;; Maintainer: Thierry Volpiatto <thievol@posteo.net
+
+;; URL: https://github.com/emacs-helm/helm-bm
 ;; Package-Requires: ((bm "1.0") (cl-lib "0.5") (helm "1.9.3"))
-;; Version: 0.3
+;; Version: 1.0
 ;; Keywords: helm, bookmark
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -22,6 +27,13 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+
+;; Helm UI for bm.el (https://github.com/joodland/bm).
+
+;; Basically bm.el allow bookmarking positions in buffers, helm-bm
+;; list these positions and allow jumping to them easily.  This is
+;; particularly useful when working on a set of functions distributed
+;; in various places of a large buffer or in several different buffers.
 
 ;; Installation:
 
