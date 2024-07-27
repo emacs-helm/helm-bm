@@ -95,7 +95,7 @@
   (with-current-buffer buf
     (if helm-bm-sort-from-pos
         (helm-fast-remove-dups (helm-flatten-list (bm-lists)) :test 'eql)
-      (mapcar #'bm-bookmarkp (overlays-in (point) (point-max))))))
+      (delq nil (mapcar #'bm-bookmarkp (overlays-in (point-min) (point-max)))))))
 
 (defun helm-bm-candidate-transformer-display
     (bufname lineno content annotation)
