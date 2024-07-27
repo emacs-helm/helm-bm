@@ -88,7 +88,7 @@
 
 (defun helm-bm-bookmarks-in-all-buffers ()
   (cl-loop for buf in (buffer-list)
-           append (helm-bm-bookmarks-in-buffer buf)))
+           nconc (helm-bm-bookmarks-in-buffer buf)))
 
 (defun helm-bm-bookmarks-in-buffer (buf)
   "Gets a list of bookmarks in BUF, which can be a string or a buffer."
