@@ -62,7 +62,7 @@
   "Bookmarks of bm.el related Applications and libraries for Helm."
   :prefix "helm-bm-" :group 'helm)
 
-(defcustom helm-bm-sort-from-pos t
+(defcustom helm-bm-sort-from-pos nil
   "Sort bookmarks according to current position when non nil."
   :type 'boolean)
 
