@@ -178,7 +178,10 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
 
 ;;;###autoload
 (defun helm-bm ()
-  "Show bookmarks of bm.el with `helm' in `current-buffer'."
+  "Show bookmarks of bm.el with `helm'.
+
+Show bookmarks from all buffers or only `current-buffer' according to
+`bm-cycle-all-buffers' value."
   (interactive)
   (helm :sources '(helm-source-bm)
         :quit-if-no-candidate
