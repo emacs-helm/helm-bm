@@ -181,10 +181,11 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
   "Show bookmarks of bm.el with `helm' in `current-buffer'."
   (interactive)
   (helm :sources '(helm-source-bm)
-        :quit-if-no-candidate (lambda ()
-                                (if bm-cycle-all-buffers
-                                    (message "No BM candidates found in buffers")
-                                  (message "No BM candidates in this buffer")))
+        :quit-if-no-candidate
+        (lambda ()
+          (if bm-cycle-all-buffers
+              (message "No BM candidates found in buffers")
+            (message "No BM candidates in this buffer")))
         :preselect (lambda ()
                      (unless helm-bm-sort-from-pos
                        (let ((nearest (helm-bm-nearest-bm-from-pos)))
