@@ -163,6 +163,19 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
               ("Edit annotation"
                . helm-bm-action-bookmark-edit-annotation))))
 
+(defun helm-bm-nearest-bm-from-pos ()
+  "Return position of bm at point or nearest bm from point."
+  (with-helm-current-buffer
+    (let ((cpos (point)))
+      (or (helm-aand (overlays-at cpos)
+                     (bm-bookmarkp (car it))
+                     (overlay-get it 'position))
+          (helm-closest-number-in-list
+           cpos
+           (cl-loop for ov in (overlays-in (point-min) (point-max))
+                    when (and ov (bm-bookmarkp ov))
+                    collect (overlay-get ov 'position)))))))
+
 ;;;###autoload
 (defun helm-bm ()
   "Show bookmarks of bm.el with `helm' in `current-buffer'."
@@ -172,6 +185,16 @@ BUFNAME, LINENO, CONTENT and ANNOTATION are concatenated to the string."
                                 (if bm-cycle-all-buffers
                                     (message "No BM candidates found in buffers")
                                   (message "No BM candidates in this buffer")))
+        :preselect (lambda ()
+                     (unless helm-bm-sort-from-pos
+                       (let ((nearest (helm-bm-nearest-bm-from-pos)))
+                         (when nearest
+                           (goto-char (point-min))
+                           (helm-skip-header-and-separator-line 'next)
+                           (while (not (eql nearest
+                                            (overlay-get
+                                             (helm-get-selection) 'position)))
+                             (helm-next-line 1))))))
         :buffer "*helm bm*"))
 
 (provide 'helm-bm)
