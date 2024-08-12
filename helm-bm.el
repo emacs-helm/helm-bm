@@ -1,12 +1,12 @@
 ;;; helm-bm.el --- helm sources for bm.el -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2013-2016 Yasuyuki Oka <yasuyk@gmail.com>
-;; Copyright (C) 2024 Thierry Volpiatto <thievol@posteo.net
+;; Copyright (C) 2024 Thierry Volpiatto <thievol@posteo.net>
 
 ;; Author: Yasuyuki Oka <yasuyk@gmail.com>
-;;         Thierry Volpiatto <thievol@posteo.net
+;;         Thierry Volpiatto <thievol@posteo.net>
 ;;
-;; Maintainer: Thierry Volpiatto <thievol@posteo.net
+;; Maintainer: Thierry Volpiatto <thievol@posteo.net>
 
 ;; URL: https://github.com/emacs-helm/helm-bm
 ;; Package-Requires: ((bm "1.0") (cl-lib "0.5") (helm "1.9.3"))
